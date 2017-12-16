@@ -122,6 +122,8 @@ class FrontController implements FrontControllerInterface
      * @param            $controller
      * @param null       $action
      * @param array|null $params
+     *
+     * @throws MethodNotExistsException
      */
     public function handleController(
         $controller, $action = null, array $params = null
@@ -159,6 +161,13 @@ class FrontController implements FrontControllerInterface
         return call_user_func_array([$class, $method], $params);
     }
 
+
+    public function execute($class, $method, array $params = null)
+    {
+        $this->handleController($class, $method, $params);
+
+        return $this->getControllerResult();
+    }
 
     public function dispatchController()
     {
