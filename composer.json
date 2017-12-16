@@ -22,8 +22,9 @@
     "phpunit/phpunit": "4.*"
   },
   "require": {
-    "minimal/minimal": "v0.1.5",
-    "minimal/routing": "v0.1.6"
+    "minimal/minimal": "*",
+    "minimal/provider": "*",
+    "minimal/routing": "*"
   },
   "autoload-dev": {
     "psr-4": {
