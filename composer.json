@@ -22,9 +22,7 @@
     "phpunit/phpunit": "4.*"
   },
   "require": {
-    "minimal/minimal": "*",
-    "minimal/provider": "*",
-    "minimal/routing": "*"
+    "minimal/minimal": "*"
   },
   "autoload-dev": {
     "psr-4": {
