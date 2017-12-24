@@ -4,6 +4,7 @@ use Maduser\Minimal\Controllers\Contracts\FrontControllerInterface;
 use Maduser\Minimal\Controllers\Exceptions\MethodNotExistsException;
 use Maduser\Minimal\Controllers\Exceptions\UndefinedControllerException;
 use Maduser\Minimal\Controllers\Factories\Contracts\ControllerFactoryInterface;
+use Maduser\Minimal\Controllers\Factories\Contracts\ModelFactoryInterface;
 use Maduser\Minimal\Routing\Contracts\RouteInterface;
 
 /**
@@ -22,6 +23,11 @@ class FrontController implements FrontControllerInterface
      * @var ControllerFactoryInterface
      */
     private $controllerFactory;
+
+    /**
+     * @var ModelFactoryInterface
+     */
+    private $modelFactory;
 
     /**
      * @var
@@ -111,11 +117,14 @@ class FrontController implements FrontControllerInterface
      * FrontController constructor.
      *
      * @param ControllerFactoryInterface $controllerFactory
+     * @param ModelFactoryInterface $modelFactory
      */
     public function __construct(
-        ControllerFactoryInterface $controllerFactory
+        ControllerFactoryInterface $controllerFactory,
+        ModelFactoryInterface $modelFactory = null
     ) {
         $this->controllerFactory = $controllerFactory;
+        $this->modelFactory = $modelFactory;
     }
 
     /**
@@ -126,16 +135,18 @@ class FrontController implements FrontControllerInterface
      * @throws MethodNotExistsException
      */
     public function handleController(
-        $controller, $action = null, array $params = null
+        $controller, $action = null, array $params = null, $model = null
     ) {
 
+        ! $model || $model = $this->modelFactory->create(null, $model);
+
         $this->setController(
-            $this->controllerFactory->create($params, $controller)
+            $this->controllerFactory->create($params, $controller, $model)
         );
 
         if (!is_null($action)) {
             $this->setControllerResult(
-                $this->executeMethod($this->getController(), $action, $params)
+                $this->executeMethod($this->getController(), $action, $params, $model)
             );
         }
     }
@@ -148,7 +159,7 @@ class FrontController implements FrontControllerInterface
      * @return mixed
      * @throws MethodNotExistsException
      */
-    public function executeMethod($class, $method, array $params = null)
+    public function executeMethod($class, $method, array $params = null, $model = null)
     {
         if (!method_exists($class, $method)) {
             throw new MethodNotExistsException(
@@ -157,6 +168,7 @@ class FrontController implements FrontControllerInterface
         }
 
         $params = $params ? $params : [];
+        ! $model || $params[] = $model;
 
         return call_user_func_array([$class, $method], $params);
     }
@@ -180,7 +192,8 @@ class FrontController implements FrontControllerInterface
         $this->handleController(
             $this->getRoute()->getController(),
             $this->getRoute()->getAction(),
-            $this->getRoute()->getParams()
+            $this->getRoute()->getParams(),
+            $this->getRoute()->getModel()
         );
     }
 
