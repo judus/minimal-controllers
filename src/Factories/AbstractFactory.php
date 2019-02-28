@@ -14,11 +14,14 @@ abstract class AbstractFactory implements FactoryInterface
     {
         ! $model || $params[] = $model;
 
+
+
         // Do we have a provider? We're finished if true
         // TODO: find out why $class is not always a string
         if (is_string($class) && IOC::registered($class)) {
             return IOC::resolve($class, $params);
         }
+
         return IOC::make($class, $params);
     }
 }
